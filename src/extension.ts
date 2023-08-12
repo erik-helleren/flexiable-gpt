@@ -8,6 +8,22 @@ type AiCallback = (response: string, errorText: string) => void;
 interface AiIntegration {
 	query(queryText: string, context: string | undefined, callback: AiCallback): Promise<void>;
 };
+class PromptQuickPickItem implements vscode.QuickPickItem {
+	label: string;
+	description: string;
+	behavior: string;
+
+	constructor(pc: PromptConfig) {
+		this.label = pc.name;
+		this.description = pc.prompt;
+		this.behavior = pc.behavior;
+	}
+}
+interface PromptConfig {
+	name: string;
+	prompt: string;
+	behavior: string;
+}
 
 class OpenAiChatIntegration implements AiIntegration {
 	apiKey: string;
@@ -57,14 +73,14 @@ class OpenAiChatIntegration implements AiIntegration {
 			messages.push({ role: "system", content: context });
 		}
 		messages.push({ role: "user", content: queryText });
-		request.write(
-			JSON.stringify({
-				model: this.model,
-				// eslint-disable-next-line @typescript-eslint/naming-convention
-				max_tokens: maxTokens,
-				messages: messages
-			})
-		);
+		const openAiChatPayload = JSON.stringify({
+			model: this.model,
+			// eslint-disable-next-line @typescript-eslint/naming-convention
+			max_tokens: maxTokens,
+			messages: messages
+		});
+		console.debug("Open AI Chat Payload: "+ openAiChatPayload);
+		request.write(openAiChatPayload);
 		request.end();
 		request.on("close", () => {
 			const openAiResult = JSON.parse(responseText).choices[0].message.content;
@@ -75,9 +91,6 @@ class OpenAiChatIntegration implements AiIntegration {
 			console.error(error);
 			callback("", error.message + responseText);
 		});
-		//TODO actually implement this method to return a string
-		const text = "Here is my chatGPT content.  So much content";
-		callback(text, "");
 	}
 }
 function buildIntegration(): AiIntegration {
@@ -114,18 +127,54 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// End Commands to manage settings
 
+
 	// Start AI commands --------
 	context.subscriptions.push(vscode.commands.registerCommand('flexiable-gpt.expand', () => {
 		replaceWithAi("Expand on the following: ");
 	}));
 
+	context.subscriptions.push(vscode.commands.registerCommand('flexiable-gpt.concise', () => {
+		replaceWithAi("Rewrite the following to be more concise: ");
+	}));
+
+	// Custom commands from configuration
+	context.subscriptions.push(vscode.commands.registerCommand('flexiable-gpt.custom', () => {
+		const quickPick = vscode.window.createQuickPick();
+		const config = vscode.workspace.getConfiguration();
+		const prompts = config.get<Array<PromptConfig>>("flexiable-gpt.prompts");
+		if (!prompts) {
+			throw new Error("There are no prompts specified");
+		}
+
+		quickPick.items = prompts.map((p) => {
+			return new PromptQuickPickItem(p);
+		});
+
+		quickPick.onDidChangeSelection(([item]) => {
+			if (item) {
+				const prompt = (item as PromptQuickPickItem).description;
+				switch ((item as PromptQuickPickItem).behavior) {
+					case "replace":
+						replaceWithAi(prompt);
+						break;
+					case "prefix":
+						appendWithAi(prompt, false, true);
+						break;
+					case "postfix":
+						appendWithAi(prompt, false, false);
+						break;
+					default:
+						console.error("Have an invalid item behavior: "+item);
+				}
+			}
+			quickPick.hide();
+		});
+
+		quickPick.onDidHide(() => quickPick.dispose());
+		quickPick.show();
+	}));
 
 	// End AI commands --------
-
-
-
-
-
 }
 
 function replaceWithAi(queryPrefix: string) {
@@ -139,6 +188,7 @@ function replaceWithAi(queryPrefix: string) {
 		//TODO if no selection, error and abort.
 		if (!selectedText) {
 			vscode.window.showErrorMessage(`Text must be selected for this command`);
+			return;
 		}
 		const integration = buildIntegration();
 
@@ -174,8 +224,9 @@ function appendWithAi(queryPrefix: string, useFullPageIfNothingSelected = false,
 					document.lineAt(document.lineCount - 1).range.end.character
 				)
 			);
-		} else {
-			throw new Error("This command requires a selection");
+		} else if (!selectedText) {
+			vscode.window.showErrorMessage(`Text must be selected for this command`);
+			return;
 		}
 		const integration = buildIntegration();
 
@@ -187,8 +238,16 @@ function appendWithAi(queryPrefix: string, useFullPageIfNothingSelected = false,
 				console.error(`flexiable-gpt: Failed to connect with the AI API: ${error}`);
 			} else {
 				editor.edit(editbuilder => {
+					let position = selection.end;
+					let textToInser = text;
+					if (prepend) {
+						text = text + "\n\n";
+						position = selection.start;
+					} else {
+						text = "\n\n" + text;
+					}
 					const insertPosition = prepend ? selection.start : selection.end;
-					editbuilder.insert(insertPosition, text);
+					editbuilder.insert(insertPosition,text);
 				});
 			}
 		});

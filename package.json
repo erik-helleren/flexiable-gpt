@@ -14,46 +14,105 @@
   "contributes": {
     "commands": [
       {
+        "command": "flexiable-gpt.set-context",
+        "title": "flexiable-gpt: Set context to selection or file"
+      },
+      {
         "command": "flexiable-gpt.expand",
         "title": "flexiable-gpt: Expand selected text"
       },
       {
-        "command": "flexiable-gpt.set-context",
-        "title": "flexiable-gpt: Set context to selection or file"
+        "command": "flexiable-gpt.concise",
+        "title": "flexiable-gpt: Concisely rewrite selected text"
+      },
+      {
+        "command": "flexiable-gpt.custom",
+        "title": "flexiable-gpt: Use a custom generative prompt"
       }
     ],
-    "configuration":[
+    "configuration": [
       {
         "title": "Flexiable GPT",
         "properties": {
-          "flexiable-gpt.vendor":{
+          "flexiable-gpt.vendor": {
             "type": "string",
             "description": "Which vendor should the API use",
             "default": "OpenAi",
-            "enum": ["OpenAi"]
+            "enum": [
+              "OpenAi"
+            ]
           },
-          "flexiable-gpt.openai.model":{
+          "flexiable-gpt.openai.model": {
             "type": "string",
             "description": "Which OpenAI model should the API use",
             "default": "gpt-3.5-turbo",
-            "enum": ["gpt-3.5-turbo","gpt-3.5-turbo-16k","gpt-4","gpt4-32k"]
+            "enum": [
+              "gpt-3.5-turbo",
+              "gpt-3.5-turbo-16k",
+              "gpt-4",
+              "gpt4-32k"
+            ]
           },
-          "flexiable-gpt.openai.key":{
+          "flexiable-gpt.openai.key": {
             "type": "string",
             "description": "Your API key from open AI. Head here to get your's: https://platform.openai.com/account/api-keys",
             "default": ""
           },
-          "flexiable-gpt.max-output-tokens":{
+          "flexiable-gpt.max-output-tokens": {
             "type": "number",
             "default": 256,
             "minimum": 256,
             "maximum": 8192,
             "description": "If a vendor allows for it, constrain the generated tokens to this number."
           },
-          "flexiable-gpt.context":{
+          "flexiable-gpt.context": {
             "type": "string",
             "default": "",
             "description": "If a vendor supports it, provide this as context to the model. This helps tell the model how to satisfy requests."
+          },
+          "flexiable-gpt.prompts": {
+            "type": "array",
+            "default": [
+              {
+                "name": "Generate Introduction",
+                "prompt": "Limit your output to a single paragraph.  Write an strong introduction paragraph to introduce the following: ",
+                "behavior": "prefix"
+              },
+              {
+                "name": "Generate Conclusion",
+                "prompt": "Limit your output to a single paragraph.  Write an strong conclusion paragraph for the following text: ",
+                "behavior": "postfix"
+              },
+              {
+                "name": "Rewrite",
+                "prompt": "Rewrite the following text: ",
+                "behavior": "replace"
+              }
+            ],
+            "description": "A list of custom prompts when text is selected. If no text is selected, they will error out. \n The name is just for display purposes.  The prompt sent to the AI services is '{prompt} \\n\\n {Selected Text};.  The behavior indicats what to do with the generated content should be replace, prefix, or postfix. ",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "The display name of the prompt"
+                },
+                "prompt": {
+                  "type": "string",
+                  "description": "The start of the prompt that will be delivered to the AI service.  The prompt to the AI services is '{prompt} \\n\\n {Selected Text}"
+                },
+                "behavior": {
+                  "type": "string",
+                  "enum": [
+                    "replace",
+                    "prefix",
+                    "postfix"
+                  ],
+                  "default": "replace",
+                  "description": "Where does the AI generated content go in relation to the selected text?"
+                }
+              }
+            }
           }
         }
       }
