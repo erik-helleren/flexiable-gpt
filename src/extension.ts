@@ -25,6 +25,12 @@ interface PromptConfig {
 	behavior: string;
 }
 
+class TestStub implements AiIntegration{
+	async query(queryText: string, context: string | undefined, callback: AiCallback): Promise<void> {
+		callback(`This is a test only stub, your app is missconfigured if you see this.  ${queryText.substring(0,10)} ${context?.substring(0,10)}`, "");
+	}
+}
+
 class OpenAiChatIntegration implements AiIntegration {
 	apiKey: string;
 	model: string;
@@ -94,8 +100,20 @@ class OpenAiChatIntegration implements AiIntegration {
 	}
 }
 function buildIntegration(): AiIntegration {
+	const config = vscode.workspace.getConfiguration();
+	const vendor = config.get<string>("flexiable-gpt.vendor");
+	if (!vendor) {
+		throw new Error("flexiable-gpt.vendor is not defined, check your settings");
+	}
 	try {
-		return new OpenAiChatIntegration();
+		switch(vendor){
+			case "OpenAi":
+				return new OpenAiChatIntegration();
+			case "Test":
+				return new TestStub();
+			default:
+				throw new Error("Unknown vendor "+vendor);
+		}
 	} catch (error: any) {
 		let message = "Unknown Error";
 		if (error instanceof Error) { message = error.message; }

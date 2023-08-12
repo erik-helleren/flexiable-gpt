@@ -39,7 +39,8 @@
             "description": "Which vendor should the API use",
             "default": "OpenAi",
             "enum": [
-              "OpenAi"
+              "OpenAi",
+              "Test"
             ]
           },
           "flexiable-gpt.openai.model": {

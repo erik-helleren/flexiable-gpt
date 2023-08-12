@@ -2,18 +2,20 @@
 
 Flexiable-gpt is designed to work for authors to help with writing blogs, briefs, articles, and books.  Similar to pay apps like Rytr. To do that we provide some basic, core prompts for you to use like "expand" and "concise".  But given that we all have different styles and needs, this plugin allows you to build your own prompts via configuration.  
 
-Those custom prompts can operate in replace/rewrite, prefix, or postfix mode.    
+Those custom prompts can operate in replace/rewrite, prefix, or postfix mode.
 
 This is currently only backed by chat-gpt, but it was designed to be extensible with other chat style completion API's.  This means you will need an open AI token and have a payment card on file.  I recommend you set aggressive limits on open AI to limit surprises on your invoice.  
 
 ## Features
 
 ### AI backend support
+
 | AI Backend Supported | Details |
 |---|---|
 | OpenAI (AKA chatGPT) | Requires a pay as you go account and a token to be provided from their [api key page](https://platform.openai.com/account/api-keys) |
 
 ### Built in commands
+
 | Command Name | Description |
 |----|---|
 | Expand | Take the selected text and expand upon it.  This will replace the selected text.  It will not work without a selection. |
