@@ -1,0 +1,84 @@
+{
+  "name": "flexiable-gpt",
+  "displayName": "flexiable-gpt",
+  "description": "A tool designed for writing MD files with the help of AI",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.81.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "flexiable-gpt.expand",
+        "title": "flexiable-gpt: Expand selected text"
+      },
+      {
+        "command": "flexiable-gpt.set-context",
+        "title": "flexiable-gpt: Set context to selection or file"
+      }
+    ],
+    "configuration":[
+      {
+        "title": "Flexiable GPT",
+        "properties": {
+          "flexiable-gpt.vendor":{
+            "type": "string",
+            "description": "Which vendor should the API use",
+            "default": "OpenAi",
+            "enum": ["OpenAi"]
+          },
+          "flexiable-gpt.openai.model":{
+            "type": "string",
+            "description": "Which OpenAI model should the API use",
+            "default": "gpt-3.5-turbo",
+            "enum": ["gpt-3.5-turbo","gpt-3.5-turbo-16k","gpt-4","gpt4-32k"]
+          },
+          "flexiable-gpt.openai.key":{
+            "type": "string",
+            "description": "Your API key from open AI. Head here to get your's: https://platform.openai.com/account/api-keys",
+            "default": ""
+          },
+          "flexiable-gpt.max-output-tokens":{
+            "type": "number",
+            "default": 256,
+            "minimum": 256,
+            "maximum": 8192,
+            "description": "If a vendor allows for it, constrain the generated tokens to this number."
+          },
+          "flexiable-gpt.context":{
+            "type": "string",
+            "default": "",
+            "description": "If a vendor supports it, provide this as context to the model. This helps tell the model how to satisfy requests."
+          }
+        }
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/glob": "^8.1.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "20.2.5",
+    "@types/vscode": "^1.81.0",
+    "@typescript-eslint/eslint-plugin": "^5.59.8",
+    "@typescript-eslint/parser": "^5.59.8",
+    "@vscode/test-electron": "^2.3.2",
+    "esbuild": "^0.19.1",
+    "eslint": "^8.41.0",
+    "glob": "^8.1.0",
+    "mocha": "^10.2.0",
+    "typescript": "^5.1.3"
+  }
+}
