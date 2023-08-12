@@ -15,12 +15,16 @@ This is currently only backed by chat-gpt, but it was designed to be extensible 
 
 ### Built in commands
 | Command Name | Description |
+|----|---|
 | Expand | Take the selected text and expand upon it.  This will replace the selected text.  It will not work without a selection. |
 | Concise | Take the selected text and make it more concise.  This will replace the selected text.  It will not work without a selection. |
+| Context | Context is simply a first system message in a chat exchange.  Consider it reusable instructions about how you want the AI to respond or helpful data for it to answer questions about.  If you have text selected when you run this action, just the selected text is loaded into context.  Otherwise, the whole active document is loaded as context. |
 
 ### Custom prompts
 
 All custom prompts have a display name, a prompt, and a behavior.  They require that text be selected, otherwise they will error.  Behavior impacts how it interacts with the existing text.  The message that is actually sent to the AI service `{prompt} \n\n {selected text}`.
+
+If you are getting really good results out of a custom prompt, consider sharing it on [github as a feature request](https://github.com/erik-helleren/flexiable-gpt/issues/new).  
 
 ## Requirements
 
@@ -39,7 +43,7 @@ Please consult the configuration section of the package.json.
 
 I freely admit that I am neither a Typescript Wizard nor an experienced extension developer.  If you find this helpful and want to contribute, checkout the [open issues on github](https://github.com/erik-helleren/flexiable-gpt/issues).  
 
-If that's not your cup of tea, consider [buying me a coffee](https://www.buymeacoffee.com/erik.helleren) instead.  
+If that's not your cup of tea, consider [becoming a sponsor or leaving a tip](https://ko-fi.com/erikhelleren).  
 
 ## Release Notes
 
