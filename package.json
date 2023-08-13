@@ -2,7 +2,8 @@
   "name": "flexiable-gpt",
   "displayName": "flexiable-gpt",
   "description": "A tool designed for writing MD files with the help of AI",
-  "version": "0.1.0",
+  "version": "0.2.0",
+  "publisher": "erikhelleren",
   "engines": {
     "vscode": "^1.81.0"
   },
