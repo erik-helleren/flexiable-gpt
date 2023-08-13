@@ -9,6 +9,16 @@
   "categories": [
     "Other"
   ],
+  "license":"MIT",
+  "repository": {
+    "type": "git",
+    "url":"https://github.com/erik-helleren/flexiable-gpt"
+  },
+  "author": {"name": "Erik Helleren"},
+  "sponsor": {
+    "url": "https://ko-fi.com/erikhelleren"
+  },
+  "bugs": {"url": "https://github.com/erik-helleren/flexiable-gpt/issues"},
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
