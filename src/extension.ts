@@ -25,9 +25,9 @@ interface PromptConfig {
 	behavior: string;
 }
 
-class TestStub implements AiIntegration{
+class TestStub implements AiIntegration {
 	async query(queryText: string, context: string | undefined, callback: AiCallback): Promise<void> {
-		callback(`This is a test only stub, your app is missconfigured if you see this.  ${queryText.substring(0,10)} ${context?.substring(0,10)}`, "");
+		callback(`This is a test only stub, your app is missconfigured if you see this.  ${queryText} ${context}`, "");
 	}
 }
 
@@ -85,7 +85,7 @@ class OpenAiChatIntegration implements AiIntegration {
 			max_tokens: maxTokens,
 			messages: messages
 		});
-		console.debug("Open AI Chat Payload: "+ openAiChatPayload);
+		console.debug("Open AI Chat Payload: " + openAiChatPayload);
 		request.write(openAiChatPayload);
 		request.end();
 		request.on("close", () => {
@@ -99,6 +99,7 @@ class OpenAiChatIntegration implements AiIntegration {
 		});
 	}
 }
+
 function buildIntegration(): AiIntegration {
 	const config = vscode.workspace.getConfiguration();
 	const vendor = config.get<string>("flexiable-gpt.vendor");
@@ -106,13 +107,13 @@ function buildIntegration(): AiIntegration {
 		throw new Error("flexiable-gpt.vendor is not defined, check your settings");
 	}
 	try {
-		switch(vendor){
+		switch (vendor) {
 			case "OpenAi":
 				return new OpenAiChatIntegration();
 			case "Test":
 				return new TestStub();
 			default:
-				throw new Error("Unknown vendor "+vendor);
+				throw new Error("Unknown vendor " + vendor);
 		}
 	} catch (error: any) {
 		let message = "Unknown Error";
@@ -128,7 +129,7 @@ export function activate(context: vscode.ExtensionContext) {
 	console.log('Congratulations, your extension "flexiable-gpt" is now active!');
 
 
-	// Start Commands to manage settings
+	// Start Commands to manage settings ----------------------------------------------------------
 	context.subscriptions.push(vscode.commands.registerCommand('flexiable-gpt.set-context', () => {
 		const editor = vscode.window.activeTextEditor;
 		if (editor) {
@@ -143,21 +144,85 @@ export function activate(context: vscode.ExtensionContext) {
 	}));
 
 
-	// End Commands to manage settings
+	// End Commands to manage settings ----------------------------------------------------------
 
 
-	// Start AI commands --------
+	// Start AI commands ----------------------------------------------------------
 	context.subscriptions.push(vscode.commands.registerCommand('flexiable-gpt.expand', () => {
 		replaceWithAi("Expand on the following: ");
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('flexiable-gpt.concise', () => {
+	context.subscriptions.push(vscode.commands.registerCommand('flexiable-gpt.condense', () => {
 		replaceWithAi("Rewrite the following to be more concise: ");
+	}));
+
+	context.subscriptions.push(vscode.commands.registerCommand('flexiable-gpt.tone', () => {
+		const tones = vscode.workspace.getConfiguration().get<Array<string>>("flexiable-gpt.tones");
+		if (!tones) {
+			vscode.window.showErrorMessage("flexiable-gpt.tones setting not configured");
+			return;
+		}
+		const selectedTone = vscode.window.showQuickPick(tones, { title: "Select a tone" });
+		if (selectedTone) { replaceWithAi(`rewrite the following text to have a tone that is ${selectedTone}`); }
+	}));
+
+	// Manual, one off prompt
+	context.subscriptions.push(vscode.commands.registerCommand('flexiable-gpt.manual', () => {
+		const behaviorModeQuickPick = vscode.window.createQuickPick();
+		behaviorModeQuickPick.title = "Please select a behavior mode (1/2)";
+		behaviorModeQuickPick.items = [
+			{ label: "replace", description: "Replace the selected text with generated text" },
+			{ label: "prefix", description: "Insert the generated text before the selected text" },
+			{ label: "postfix", description: "Insert the generated text after the selected text" },
+		];
+		behaviorModeQuickPick.onDidHide(() => behaviorModeQuickPick.dispose());
+		behaviorModeQuickPick.onDidChangeSelection(([item]) => {
+			behaviorModeQuickPick.hide();
+			if (item) {
+				const behaviorMode = item.label;
+				vscode.window.showInputBox({ title: "Enter your prompt (2/2)" }).then((prompt) => {
+					if (prompt) {
+						switch (behaviorMode) {
+							case "replace":
+								replaceWithAi(prompt);
+								break;
+							case "prefix":
+								appendWithAi(prompt, false, true);
+								break;
+							case "postfix":
+								appendWithAi(prompt, false, false);
+								break;
+							default:
+								console.error("Have an invalid item behavior: " + item);
+						}
+					}
+				});
+
+			}
+		});
+		behaviorModeQuickPick.show();
+	}));
+
+	// Manual, one off replacement prompt
+	context.subscriptions.push(vscode.commands.registerCommand('flexiable-gpt.manual.replace', () => {
+		const promptInput = vscode.window.createInputBox();
+		promptInput.title = "Insert a prompt or just hit enter to use selected text";
+		promptInput.onDidChangeValue((prompt) => {
+			promptInput.hide();
+			if (prompt) {
+				replaceWithAi(prompt);
+			} else {
+				replaceWithAi("");
+			}
+		});
+		promptInput.onDidHide(() => promptInput.dispose());
+		promptInput.show();
 	}));
 
 	// Custom commands from configuration
 	context.subscriptions.push(vscode.commands.registerCommand('flexiable-gpt.custom', () => {
 		const quickPick = vscode.window.createQuickPick();
+		quickPick.title = "Please select a configured custom prompt";
 		const config = vscode.workspace.getConfiguration();
 		const prompts = config.get<Array<PromptConfig>>("flexiable-gpt.prompts");
 		if (!prompts) {
@@ -182,7 +247,7 @@ export function activate(context: vscode.ExtensionContext) {
 						appendWithAi(prompt, false, false);
 						break;
 					default:
-						console.error("Have an invalid item behavior: "+item);
+						console.error("Have an invalid item behavior: " + item);
 				}
 			}
 			quickPick.hide();
@@ -192,7 +257,7 @@ export function activate(context: vscode.ExtensionContext) {
 		quickPick.show();
 	}));
 
-	// End AI commands --------
+	// End AI commands ----------------------------------------------------------
 }
 
 function replaceWithAi(queryPrefix: string) {
@@ -212,7 +277,7 @@ function replaceWithAi(queryPrefix: string) {
 
 		const config = vscode.workspace.getConfiguration();
 
-		integration.query(`${queryPrefix} \n\n ${selectedText}`, config.get<string>("flexiable-gpt.context"), (text, error) => {
+		integration.query(queryPrefix ? `${queryPrefix} \n\n ${selectedText}` : selectedText, config.get<string>("flexiable-gpt.context"), (text, error) => {
 			if (error) {
 				vscode.window.showErrorMessage(`Ai API request failed: ${error.substring(0, 25)}`);
 				console.error(`flexiable-gpt: Failed to connect with the AI API: ${error}`);
@@ -250,7 +315,7 @@ function appendWithAi(queryPrefix: string, useFullPageIfNothingSelected = false,
 
 		const config = vscode.workspace.getConfiguration();
 
-		integration.query(`${queryPrefix} \n\n ${selectedText}`, config.get<string>("flexiable-gpt.context"), (text, error) => {
+		integration.query(queryPrefix ? `${queryPrefix} \n\n ${selectedText}` : selectedText, config.get<string>("flexiable-gpt.context"), (text, error) => {
 			if (error) {
 				vscode.window.showErrorMessage(`Ai API request failed: ${error.substring(0, 25)}`);
 				console.error(`flexiable-gpt: Failed to connect with the AI API: ${error}`);
@@ -265,7 +330,7 @@ function appendWithAi(queryPrefix: string, useFullPageIfNothingSelected = false,
 						text = "\n\n" + text;
 					}
 					const insertPosition = prepend ? selection.start : selection.end;
-					editbuilder.insert(insertPosition,text);
+					editbuilder.insert(insertPosition, text);
 				});
 			}
 		});

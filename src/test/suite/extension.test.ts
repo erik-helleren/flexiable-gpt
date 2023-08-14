@@ -11,6 +11,7 @@ suite('Extension Test Suite', function () {
 	suiteSetup(async () => {
 		// Set the secret value to be used in the test
 		await vscode.workspace.getConfiguration().update('flexiable-gpt.openai.key', process.env.OPENAI_KEY , vscode.ConfigurationTarget.Global);
+		await vscode.workspace.getConfiguration().update('flexiable-gpt.max-output-tokens', 64 , vscode.ConfigurationTarget.Global);
 	});
 
 	this.beforeEach(()=>{
@@ -29,7 +30,7 @@ suite('Extension Test Suite', function () {
 		});
 		await vscode.window.showTextDocument(file);
 		// Select the first line of the file
-		const selection = new vscode.Selection(new vscode.Position(0, 0), new vscode.Position(0, 40));
+		const selection = new vscode.Selection(new vscode.Position(0, 0), new vscode.Position(0, 99999));
 		const activeTextEditor = vscode.window.activeTextEditor;
 		if (!activeTextEditor) { return; }
 		activeTextEditor.selection = selection;

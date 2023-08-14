@@ -10,16 +10,20 @@
   "categories": [
     "Other"
   ],
-  "license":"MIT",
+  "license": "MIT",
   "repository": {
     "type": "git",
-    "url":"https://github.com/erik-helleren/flexiable-gpt"
+    "url": "https://github.com/erik-helleren/flexiable-gpt"
   },
-  "author": {"name": "Erik Helleren"},
+  "author": {
+    "name": "Erik Helleren"
+  },
   "sponsor": {
     "url": "https://ko-fi.com/erikhelleren"
   },
-  "bugs": {"url": "https://github.com/erik-helleren/flexiable-gpt/issues"},
+  "bugs": {
+    "url": "https://github.com/erik-helleren/flexiable-gpt/issues"
+  },
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
@@ -33,12 +37,24 @@
         "title": "flexiable-gpt: Expand selected text"
       },
       {
-        "command": "flexiable-gpt.concise",
-        "title": "flexiable-gpt: Concisely rewrite selected text"
+        "command": "flexiable-gpt.condense",
+        "title": "flexiable-gpt: Condense selected text"
+      },
+      {
+        "command": "flexiable-gpt.tone",
+        "title": "flexiable-gpt: Alter Tone of selected text"
       },
       {
         "command": "flexiable-gpt.custom",
-        "title": "flexiable-gpt: Use a custom generative prompt"
+        "title": "flexiable-gpt: Custom generative prompt"
+      },
+      {
+        "command": "flexiable-gpt.manual",
+        "title": "flexiable-gpt: Manual generative prompt"
+      },
+      {
+        "command": "flexiable-gpt.manual.replace",
+        "title": "flexiable-gpt: Replace text with an manual prompt"
       }
     ],
     "configuration": [
@@ -62,7 +78,7 @@
               "gpt-3.5-turbo",
               "gpt-3.5-turbo-16k",
               "gpt-4",
-              "gpt4-32k"
+              "gpt-4-32k"
             ]
           },
           "flexiable-gpt.openai.key": {
@@ -72,8 +88,8 @@
           },
           "flexiable-gpt.max-output-tokens": {
             "type": "number",
-            "default": 256,
-            "minimum": 256,
+            "default": 512,
+            "minimum": 64,
             "maximum": 8192,
             "description": "If a vendor allows for it, constrain the generated tokens to this number."
           },
@@ -125,6 +141,28 @@
                 }
               }
             }
+          },
+          "flexiable-gpt.tones": {
+            "description": "A list of the tones you want to be avalaible while re-writing for a particular tone. It will be inserted into the phrse 'rewrite the following text to have a tone that is {entry}'.  Values are presented in the order that they are here.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": [
+              "Informative",
+              "Thoughtful",
+              "Casual",
+              "Conversational",
+              "Personal and Friendly",
+              "Funny",
+              "Formal",
+              "Serious",
+              "Professional",
+              "Optimistic",
+              "Witty",
+              "Reflective",
+              "Empathetic"
+            ]
           }
         }
       }
