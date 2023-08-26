@@ -1,7 +1,6 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import * as https from "https";
 
 type AiCallback = (response: string, errorText: string) => void;
 
@@ -57,46 +56,39 @@ class OpenAiChatIntegration implements AiIntegration {
 		}
 
 		let responseText = "";
-		const request = https.request(
-			{
-				hostname: "api.openai.com",
-				path: "/v1/chat/completions",
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json", // eslint-disable-line @typescript-eslint/naming-convention
-					Authorization: `Bearer ${this.apiKey}`, // eslint-disable-line @typescript-eslint/naming-convention
-				},
-			},
-			response => {
-				response.on("data", data => {
-					console.debug("Data from Open AI: " + data.toString());
-					responseText += data.toString();
-				});
-			}
-		);
+		const headers = {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${this.apiKey}`,
+		};
+
 		let messages = [];
 		if (context) {
 			messages.push({ role: "system", content: context });
 		}
 		messages.push({ role: "user", content: queryText });
+
 		const openAiChatPayload = JSON.stringify({
 			model: this.model,
-			// eslint-disable-next-line @typescript-eslint/naming-convention
 			max_tokens: maxTokens,
-			messages: messages
+			messages: messages,
 		});
 		console.debug("Open AI Chat Payload: " + openAiChatPayload);
-		request.write(openAiChatPayload);
-		request.end();
-		request.on("close", () => {
-			const openAiResult = JSON.parse(responseText).choices[0].message.content;
-			console.debug("Extractd test from open AI: " + openAiResult);
-			callback(openAiResult, "");
-		});
-		request.on("error", error => {
-			console.error(error);
-			callback("", error.message + responseText);
-		});
+
+		fetch("https://api.openai.com/v1/chat/completions", {
+			method: "POST",
+			headers: headers,
+			body: openAiChatPayload,
+		})
+			.then((response) => response.json())
+			.then((data) => {
+				const openAiResult = data.choices[0].message.content;
+				console.debug("Extracted text from open AI: " + openAiResult);
+				callback(openAiResult, "");
+			})
+			.catch((error) => {
+				console.error(error);
+				callback("", error.message);
+			});
 	}
 }
 

@@ -75,6 +75,10 @@ You can also consider [becoming a sponsor or leaving a tip](https://ko-fi.com/er
 
 ## Release Notes
 
+### 0.3.0
+
+* Converting to a web based extension
+
 ### 0.2.0
 
 * Adding manual, one shot, generative feature.
