@@ -74,6 +74,9 @@ I freely admit that I am neither a Typescript Wizard nor an experienced extensio
 You can also consider [becoming a sponsor or leaving a tip](https://ko-fi.com/erikhelleren).  
 
 ## Release Notes
+### 0.4.0
+
+* Fixing build issue
 
 ### 0.3.0
 
@@ -89,7 +92,7 @@ You can also consider [becoming a sponsor or leaving a tip](https://ko-fi.com/er
 ### 0.1.0
 
 The initial release of flexiable-gpt.
-
+OfGER+tSZIOSz314OlHk1aM+N8oNXDRHqTn3c5EVknYO5b5s0kqq40lJzoGj99ZXCvoFhkNG8KwQQvBPaR0FtQ==
 ---
 
 ## Following extension guidelines
