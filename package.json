@@ -33,6 +33,10 @@
         "title": "flexiable-gpt: Set context to selection or file"
       },
       {
+        "command": "flexiable-gpt.load-context",
+        "title": "flexiable-gpt: Load context based on references in this files frontmater"
+      },
+      {
         "command": "flexiable-gpt.expand",
         "title": "flexiable-gpt: Expand selected text"
       },
@@ -76,9 +80,7 @@
             "default": "gpt-3.5-turbo",
             "enum": [
               "gpt-3.5-turbo",
-              "gpt-3.5-turbo-16k",
-              "gpt-4",
-              "gpt-4-32k"
+              "gpt-4.5"
             ]
           },
           "flexiable-gpt.openai.key": {
@@ -177,6 +179,9 @@
     "package-web": "webpack --mode production --devtool hidden-source-map",
     "lint": "eslint src --ext ts",
     "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ."
+  },
+  "dependencies": {
+    "gray-matter": "4.0.3"
   },
   "devDependencies": {
     "@types/vscode": "^1.81.0",
